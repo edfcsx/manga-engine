@@ -1,0 +1,16 @@
+{
+  "textures": [
+    {
+      "id": "chopper",
+      "path": "assets/images/chopper-spritesheet.png"
+    },
+    {
+      "id": "tank_big_right",
+      "path": "assets/images/tank-big-right.png"
+    },
+    {
+      "id": "radar",
+      "path": "assets/images/radar.png"
+    }
+  ]
+}
