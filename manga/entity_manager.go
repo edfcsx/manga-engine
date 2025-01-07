@@ -18,6 +18,10 @@ func (e *EntityManager) CreateEntity(label string) *Entity {
 	return entity
 }
 
+func (e *EntityManagerE) CreateEntity(label string) *Entity {
+	return makeEntity(label)
+}
+
 func (e *EntityManager) AddEntity(entity *Entity) {
 	e.entities[entity.Label] = entity
 }

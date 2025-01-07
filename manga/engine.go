@@ -20,6 +20,8 @@ type engine struct {
 	AssetManager   AssetManager
 	Debug          Debug
 	Keyboard       Keyboard
+	TileSet        TileSetE
+	systemManager  SystemManager
 }
 
 var Engine = &engine{
@@ -36,6 +38,8 @@ var Engine = &engine{
 	AssetManager:   makeAssetManager(),
 	Debug:          makeDebug(),
 	Keyboard:       makeKeyboard(),
+	TileSet:        makeTileSetE(),
+	systemManager:  makeSystemManager(),
 }
 
 func (e *engine) AddGlobalScript(script GlobalScript) {
@@ -78,22 +82,7 @@ func Start(scene Scene) {
 	Engine.currentScene = scene
 	Engine.currentScene.Initialize()
 
-	if Engine.Debug.enabled {
-		for Engine.running {
-			executeGlobalScripts()
-			processEvents()
-			update()
-			Engine.Debug.update()
-			render()
-		}
-	} else {
-		for Engine.running {
-			executeGlobalScripts()
-			processEvents()
-			update()
-			render()
-		}
-	}
+	mainLoop()
 }
 
 func executeGlobalScripts() {

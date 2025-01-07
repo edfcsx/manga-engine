@@ -11,6 +11,10 @@
     {
       "id": "radar",
       "path": "assets/images/radar.png"
+    },
+    {
+      "id": "island_tileset",
+      "path": "assets/tilesets/island.png"
     }
   ]
 }

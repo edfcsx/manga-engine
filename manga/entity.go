@@ -1,17 +1,19 @@
 package manga
 
+type Entity struct {
+	Label      string
+	IsActive   bool
+	components map[string]Component
+	Self       interface{}
+}
+
 func makeEntity(label string) *Entity {
 	return &Entity{
 		Label:      label,
 		IsActive:   true,
 		components: make(map[string]Component),
+		Self:       nil,
 	}
-}
-
-type Entity struct {
-	Label      string
-	IsActive   bool
-	components map[string]Component
 }
 
 func (e *Entity) AddComponent(componentType string, c Component) {
@@ -33,6 +35,10 @@ func (e *Entity) Render() {
 	for _, c := range e.components {
 		c.Render()
 	}
+}
+
+func (e *Entity) SetSelf(self interface{}) {
+	e.Self = self
 }
 
 func (e *Entity) CreateTransform() *TransformComponent {
@@ -69,4 +75,10 @@ func (e *Entity) CreateKeyboardMove() *KeyboardMoveComponent {
 	keyboardMove := makeKeyboardMoveComponent(e)
 	e.AddComponent(KeyboardMoveComponentType, keyboardMove)
 	return keyboardMove
+}
+
+func (e *Entity) CreateCollider(onCollision func(*Entity), shape ColliderShape) *ColliderComponent {
+	collider := makeColliderComponent(e, onCollision, shape)
+	e.AddComponent(ColliderComponentType, collider)
+	return collider
 }

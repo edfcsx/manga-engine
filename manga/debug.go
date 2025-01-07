@@ -5,26 +5,26 @@ import (
 )
 
 type Debug struct {
-	enabled bool
-	FPS     FPSCounter
+	FPS                FPSCounter
+	ShowCollisionBoxes bool
 }
 
 func makeDebug() Debug {
 	return Debug{
-		enabled: false,
-		FPS:     FPSCounter{},
+		FPS: FPSCounter{},
 	}
 }
 
 func (d *Debug) Enable() {
-	d.enabled = true
 	d.FPS.initialize()
 }
 
+func (d *Debug) ShowCollisions(state bool) {
+	d.ShowCollisionBoxes = state
+}
+
 func (d *Debug) update() {
-	if d.enabled {
-		d.FPS.update()
-	}
+	d.FPS.update()
 }
 
 type FPSCounter struct {

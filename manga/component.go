@@ -5,5 +5,3 @@ type Component interface {
 	Update()
 	Render()
 }
-
-type ComponentE struct{}

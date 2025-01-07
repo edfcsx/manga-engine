@@ -7,24 +7,28 @@ import (
 
 type Home struct {
 	entities manga.EntityManager
+	world    *manga.Map
 }
 
 func (h *Home) Initialize() {
+	// loading assets
 	manga.Engine.AssetManager.LoadFromJSON("game/assets.json")
+
+	// adding tileset
+	islandTexture := manga.Engine.AssetManager.GetTexture("island_tileset")
+	manga.Engine.TileSet.AddTileSet("island", 12, 12, islandTexture)
+
+	// adding map
+	world, err := manga.CreateMapFromJSON("assets/maps/town2.json")
+	if err != nil {
+		panic(err)
+	}
+
+	h.world = world
+
+	// adding entities
 	h.entities = manga.Engine.EntityManager.Make()
-
-	chopper := h.entities.CreateEntity("chopper")
-
-	chopper.CreateScript(nil, chopperScriptUpdate, nil)
-	chopper.CreateTransformE(400.0, 200.0, 200.0, 200.0, 32, 32, 3)
-	chopper.CreateKeyboardMove().SetKeys(moveUpKeys, moveDownKeys, moveLeftKeys, moveRightKeys)
-
-	chopperSpr := chopper.CreateSprite("chopper")
-	chopperSpr.AddAnimation("down", 0, 2, 80, false)
-	chopperSpr.AddAnimation("right", 1, 2, 80, false)
-	chopperSpr.AddAnimation("left", 2, 2, 80, false)
-	chopperSpr.AddAnimation("up", 3, 2, 80, false)
-	chopperSpr.PlayAnimation("down")
+	h.entities.AddEntity(MakePlayer().GetEntity())
 
 	/* radar entity */
 	radar := h.entities.CreateEntity("radar")
@@ -35,26 +39,13 @@ func (h *Home) Initialize() {
 	radarSpr.PlayAnimation("idle")
 }
 
-func chopperScriptUpdate(e *manga.Entity) {
-	spr := manga.GetSpriteComponent(e)
-
-	if manga.Engine.Keyboard.IsAnyKeyPressed(moveUpKeys) {
-		spr.PlayAnimation("up")
-	} else if manga.Engine.Keyboard.IsAnyKeyPressed(moveDownKeys) {
-		spr.PlayAnimation("down")
-	} else if manga.Engine.Keyboard.IsAnyKeyPressed(moveLeftKeys) {
-		spr.PlayAnimation("left")
-	} else if manga.Engine.Keyboard.IsAnyKeyPressed(moveRightKeys) {
-		spr.PlayAnimation("right")
-	}
-}
-
 func (h *Home) Update() {
 	h.entities.Update()
-
-	fmt.Println("fps: ", manga.Engine.Debug.FPS.GetFPS())
+	// show fps
+	fmt.Printf("FPS: %f\n", manga.Engine.Debug.FPS.GetFPS())
 }
 
 func (h *Home) Render() {
+	h.world.Draw()
 	h.entities.Render()
 }
