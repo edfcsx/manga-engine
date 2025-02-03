@@ -6,17 +6,17 @@ type System interface {
 }
 
 type SystemManager struct {
-	systems []System
+	systems map[string]System
 }
 
 func makeSystemManager() SystemManager {
 	return SystemManager{
-		systems: make([]System, 0),
+		systems: make(map[string]System),
 	}
 }
 
-func (s *SystemManager) AddSystem(system System) {
-	s.systems = append(s.systems, system)
+func (s *SystemManager) AddSystem(id string, system System) {
+	s.systems[id] = system
 	system.Initialize()
 }
 

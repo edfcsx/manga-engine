@@ -78,7 +78,11 @@ func Start(scene Scene) {
 
 	Engine.gameWindow = window
 	Engine.renderer = renderer
+
 	Engine.running = true
+
+	Engine.systemManager.AddSystem(ColliderSystemID, MakeColliderSystem())
+
 	Engine.currentScene = scene
 	Engine.currentScene.Initialize()
 

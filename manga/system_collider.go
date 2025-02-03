@@ -1,6 +1,7 @@
 package manga
 
 import (
+	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
 	"manga_engine/vector"
 	"math"
@@ -61,6 +62,13 @@ func (p *PointShape) Render(transform *TransformComponent) {
 	if err != nil {
 		return
 	}
+}
+
+func (p *PointShape) Distance(x int32, y int32) float64 {
+	deltaX := math.Abs(float64(x - p.position.X))
+	deltaY := math.Abs(float64(y - p.position.Y))
+
+	return math.Sqrt((deltaX * deltaX) + (deltaY * deltaY))
 }
 
 // ----------------- end point shape -----------------
@@ -246,4 +254,126 @@ func (l *LineShape) Render(transform *TransformComponent) {
 	err = Engine.renderer.DrawLine(l.AX(), l.AY(), l.BX(), l.BY())
 }
 
-// ----------------- end line shape -----------------
+// ----------------- Collisions Resolvers -----------
+
+func CollisionPointPoint(a *PointShape, b *PointShape) bool {
+	return a.X() == b.X() && a.Y() == b.Y()
+}
+
+func CollisionPointRect(p *PointShape, r *RectangleShape) bool {
+	if p.X() >= r.Left() && p.X() <= r.Right() {
+		if p.Y() >= r.Top() && p.Y() <= r.Bottom() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func CollisionPointCircle(p *PointShape, c *CircleShape) bool {
+	return p.Distance(c.X(), c.Y()) <= float64(c.Radius())
+}
+
+func CollisionPointLine(p *PointShape, l *LineShape) bool {
+	// Coordenadas do ponto
+	px, py := float64(p.X()), float64(p.Y())
+
+	// Coordenadas dos pontos da linha
+	ax, ay := float64(l.AX()), float64(l.AY())
+	bx, by := float64(l.BX()), float64(l.BY())
+
+	// Calcular a distância perpendicular do ponto à linha
+	numerator := math.Abs((by-ay)*px - (bx-ax)*py + bx*ay - by*ax)
+	denominator := math.Sqrt((by-ay)*(by-ay) + (bx-ax)*(bx-ax))
+	distance := numerator / denominator
+
+	// Verificar se o ponto está dentro dos limites da linha
+	if distance == 0 {
+		if (px >= math.Min(ax, bx) && px <= math.Max(ax, bx)) && (py >= math.Min(ay, by) && py <= math.Max(ay, by)) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func CollisionResolver(a, b ColliderShape) bool {
+	collision := false
+
+	switch a.GetType() {
+	case ShapePoint:
+		switch b.GetType() {
+		case ShapePoint:
+			collision = CollisionPointPoint(a.(*PointShape), b.(*PointShape))
+			break
+		case ShapeRectangle:
+			collision = CollisionPointRect(a.(*PointShape), b.(*RectangleShape))
+			break
+		case ShapeCircle:
+			collision = CollisionPointCircle(a.(*PointShape), b.(*CircleShape))
+			break
+		case ShapeLine:
+			collision = CollisionPointLine(a.(*PointShape), b.(*LineShape))
+		}
+	}
+
+	return collision
+}
+
+// ----------------- end Collision Resolvers --------
+
+const ColliderSystemID string = "ColliderSystem"
+
+type ColliderType int32
+
+const (
+	ColliderStatic ColliderType = iota
+	ColliderMoving
+)
+
+type Collider struct {
+	shape       ColliderShape
+	onCollision func(*Entity)
+}
+
+// ColliderSystem TODO: change to use hashmap for faster lookup
+type ColliderSystem struct {
+	static []*Collider
+	moving []*Collider
+}
+
+func MakeColliderSystem() *ColliderSystem {
+	return &ColliderSystem{}
+}
+
+func (c *ColliderSystem) Initialize() {}
+
+func (c *ColliderSystem) Update() {
+	if len(c.moving) == 0 || (len(c.moving) == 1) && (len(c.static) == 0) {
+		return
+	}
+
+	// compare all move objects first
+	for idx, moving := range c.moving {
+		for idx2 := idx + 1; idx2 < len(c.moving); idx2++ {
+
+		}
+	}
+
+	// compare all move objects with static objects
+	for _, moving := range c.moving {
+		for _, static := range c.static {
+
+		}
+	}
+
+	fmt.Println("ColliderSystem Update")
+}
+
+func (c *ColliderSystem) Register(t ColliderType, shape ColliderShape, onCollision func(*Entity)) {
+	if t == ColliderStatic {
+		c.static = append(c.static, &Collider{shape: shape, onCollision: onCollision})
+	} else {
+		c.moving = append(c.moving, &Collider{shape: shape, onCollision: onCollision})
+	}
+}

@@ -26,7 +26,9 @@ func makeColliderComponent(entity *Entity, OnCollision func(*Entity), shape Coll
 	}
 }
 
-func (c *ColliderComponent) Initialize() {}
+func (c *ColliderComponent) Initialize() {
+	Engine.systemManager.systems[ColliderSystemID].(*ColliderSystem).Register(ColliderMoving, c.Shape, c.OnCollision)
+}
 
 func (c *ColliderComponent) Update() {
 	transform := GetTransformComponent(c.Entity)
@@ -36,7 +38,6 @@ func (c *ColliderComponent) Update() {
 func (c *ColliderComponent) Render() {
 	if Engine.Debug.ShowCollisionBoxes {
 		c.Shape.Render(c.transform)
-		//fmt.Println(c.Shape.(*RectangleShape).position.X)
 	}
 }
 

@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"manga_engine/manga"
 )
 
@@ -42,7 +41,7 @@ func (h *Home) Initialize() {
 func (h *Home) Update() {
 	h.entities.Update()
 	// show fps
-	fmt.Printf("FPS: %f\n", manga.Engine.Debug.FPS.GetFPS())
+	//fmt.Printf("FPS: %f\n", manga.Engine.Debug.FPS.GetFPS())
 }
 
 func (h *Home) Render() {
