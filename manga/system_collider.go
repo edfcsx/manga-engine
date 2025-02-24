@@ -297,6 +297,42 @@ func CollisionPointLine(p *PointShape, l *LineShape) bool {
 	return false
 }
 
+func CollisionRectRect(a *RectangleShape, b *RectangleShape) bool {
+	// verifica se existe sobreposição nos dois eixos
+	overlapX := b.Left() <= a.Right() && a.Left() <= b.Right()
+	overlapY := b.Top() <= a.Bottom() && a.Top() <= b.Bottom()
+
+	return overlapX && overlapY
+}
+
+func CollisionRectCircle(r *RectangleShape, c *CircleShape) bool {
+	// encontra o ponto do retângulo mais próximo do círculo
+	var px, py int32
+
+	if c.X() < r.Left() {
+		px = r.Left()
+	} else {
+		if c.X() > r.Right() {
+			px = r.Right()
+		} else {
+			px = c.X()
+		}
+	}
+
+	if c.Y() < r.Top() {
+		py = r.Top()
+	} else {
+		if c.Y() > r.Bottom() {
+			py = r.Bottom()
+		} else {
+			py = c.Y()
+		}
+	}
+
+	// verifica se o ponto mais próximo está dentro do círculo
+	return CollisionPointCircle(&PointShape{position: vector.MakeVec2[int32](px, py)}, c)
+}
+
 func CollisionResolver(a, b ColliderShape) bool {
 	collision := false
 
@@ -314,6 +350,11 @@ func CollisionResolver(a, b ColliderShape) bool {
 			break
 		case ShapeLine:
 			collision = CollisionPointLine(a.(*PointShape), b.(*LineShape))
+		}
+	case ShapeRectangle:
+		switch b.GetType() {
+		case ShapePoint:
+			collision = CollisionRect
 		}
 	}
 
@@ -356,7 +397,10 @@ func (c *ColliderSystem) Update() {
 	// compare all move objects first
 	for idx, moving := range c.moving {
 		for idx2 := idx + 1; idx2 < len(c.moving); idx2++ {
-
+			if CollisionResolver(moving.shape, c.moving[idx2].shape) {
+				moving.onCollision(c.moving[idx2].shape.(*ColliderComponent).Entity)
+				c.moving[idx2].onCollision(moving.shape.(*ColliderComponent).Entity)
+			}
 		}
 	}
 
