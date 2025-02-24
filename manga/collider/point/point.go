@@ -73,11 +73,11 @@ func (p *Point) CollidesWith(shape colliderI.Shape) bool {
 	}
 }
 
-func collidesPoint(p *Point, b colliderI.Shape) bool {
+func collidesPoint(p colliderI.PointShape, b colliderI.Shape) bool {
 	return p.X() == b.X() && p.Y() == b.X()
 }
 
-func collidesCircle(p *Point, b interface{}) bool {
+func collidesCircle(p colliderI.PointShape, b interface{}) bool {
 	circle, ok := b.(colliderI.CircleShape)
 
 	if !ok {
@@ -85,10 +85,10 @@ func collidesCircle(p *Point, b interface{}) bool {
 		panic(ok)
 	}
 
-	return p.Distance(circle.X(), circle.Y()) <= float64(circle.GetRadius())
+	return p.Distance(circle.X(), circle.Y()) <= circle.GetRadius()
 }
 
-func collidesRectangle(p *Point, b interface{}) bool {
+func collidesRectangle(p colliderI.PointShape, b interface{}) bool {
 	rect, ok := b.(colliderI.RectangleShape)
 
 	if !ok {
@@ -104,7 +104,7 @@ func collidesRectangle(p *Point, b interface{}) bool {
 	return false
 }
 
-func collidesLine(p *Point, b interface{}) bool {
+func collidesLine(p colliderI.PointShape, b interface{}) bool {
 	l, ok := b.(colliderI.LineShape)
 
 	if !ok {

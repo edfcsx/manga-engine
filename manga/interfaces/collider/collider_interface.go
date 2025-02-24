@@ -11,7 +11,7 @@ type Shape interface {
 	MoveTo(x, y int32)
 	GetType() int32
 	CollidesWith(shape Shape) bool
-	Render(t *componentI.TransformComponent, r *sdl.Renderer)
+	Render(t componentI.TransformComponent, r *sdl.Renderer)
 }
 
 const (
